@@ -1,0 +1,43 @@
+name: analyze
+on:
+  schedule: [{ cron: "0 */6 * * *" }] 
+  workflow_dispatch:                   
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Cache Hugging Face models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-models-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      
+      - name: Install dependencies
+        run: pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
+      
+      - name: Run pipeline
+        run: python scripts/run_all.py
+        working-directory: scripts
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT: ${{ secrets.TELEGRAM_CHAT }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      
+      - name: Commit results
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ secrets.GIT_EMAIL }}"
+          
+          git add data/scores measurements data/state
+          
+          git diff --cached --quiet || git commit -m "chore(data): auto-update 8-K tone scores"
+          git push
