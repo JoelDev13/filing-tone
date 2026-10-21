@@ -5,4 +5,4 @@ torch
 sentence-transformers
 numpy
 matplotlib
-pytestcl
+pytest
