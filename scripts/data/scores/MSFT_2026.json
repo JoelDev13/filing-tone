@@ -1,0 +1,9 @@
+{
+  "pos": 0.061,
+  "neg": 0.22,
+  "neu": 0.72,
+  "tone": -0.159,
+  "n_chunks": 164,
+  "drift_vs_prev": 0.003,
+  "drift_baseline": "2025"
+}

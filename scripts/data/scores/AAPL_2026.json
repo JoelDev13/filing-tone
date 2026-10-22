@@ -3,5 +3,7 @@
   "neg": 0.0,
   "neu": 1.0,
   "tone": 0.0,
-  "n_chunks": 2
+  "n_chunks": 2,
+  "drift_vs_prev": 0.36,
+  "drift_baseline": "2025"
 }
