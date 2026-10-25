@@ -1,8 +1,4 @@
 {
-  "NVDA": [],
-  "GOOGL": [],
-  "TSLA": [],
-  "MSFT": [],
   "AAPL": [
     {
       "year": 2026,
@@ -10,9 +6,13 @@
       "drift": 0.36
     }
   ],
-  "XOM": [],
-  "WMT": [],
-  "AMZN": [],
+  "MSFT": [],
+  "GOOGL": [],
   "META": [],
-  "JPM": []
+  "TSLA": [],
+  "NVDA": [],
+  "JPM": [],
+  "AMZN": [],
+  "XOM": [],
+  "WMT": []
 }
