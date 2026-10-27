@@ -1,6 +1,6 @@
 name: analyze
 on:
-  schedule: [{ cron: "0 0 * * *" }] 
+  schedule: [{ cron: "23 2 * * *" }] 
   workflow_dispatch:                   
 
 permissions:
@@ -37,7 +37,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          git add scripts/data/scores scripts/measurements
+          git add scripts/data/scores scripts/measurements scripts/data/state
           
           git diff --cached --quiet || git commit -m "chore(data): auto-update 8-K tone scores"
           git push

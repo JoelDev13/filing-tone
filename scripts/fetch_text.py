@@ -3,7 +3,8 @@ from bs4 import BeautifulSoup
 from pathlib import Path
 from common import UA, COMPANIES
 
-RAW = Path("data/raw"); RAW.mkdir(parents=True, exist_ok=True)
+BASE_DIR = Path(__file__).resolve().parent
+RAW = BASE_DIR / "data" / "raw"; RAW.mkdir(parents=True, exist_ok=True)
 
 def recent_8ks(cik: str, n: int = 2) -> list:
     d = requests.get(f"https://data.sec.gov/submissions/CIK{cik}.json",

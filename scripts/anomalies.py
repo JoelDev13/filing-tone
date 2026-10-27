@@ -3,7 +3,9 @@ from pathlib import Path
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-SCORES = Path("data/scores"); MEAS = Path("measurements"); MEAS.mkdir(exist_ok=True)
+BASE_DIR = Path(__file__).resolve().parent
+SCORES = BASE_DIR / "data" / "scores"
+MEAS = BASE_DIR / "measurements"; MEAS.mkdir(exist_ok=True)
 
 def load_all() -> dict:
     out = {}
@@ -19,7 +21,8 @@ def detect(history: dict) -> list:
     mean, sd = statistics.mean(tones), statistics.pstdev(tones) or 1e-9
     return [{"year": y,
              "z": round((history[y]["tone"] - mean) / sd, 2),
-             "drift": history[y].get("drift_vs_prev")}
+             "drift": history[y].get("drift_vs_prev"),
+             "worst_snippet": history[y].get("worst_snippet", "")}
             for y in sorted(history)
             if "tone" in history[y]
             and (abs((history[y]["tone"] - mean) / sd) >= 1.5
