@@ -4,7 +4,8 @@ from pathlib import Path
 from sentence_transformers import SentenceTransformer
 from common import chunk_text, COMPANIES
 
-RAW = Path("data/raw"); SCORES = Path("data/scores")
+BASE_DIR = Path(__file__).resolve().parent
+RAW = BASE_DIR / "data" / "raw"; SCORES = BASE_DIR / "data" / "scores"
 model = SentenceTransformer("all-MiniLM-L6-v2")  
 
 def doc_vector(path: Path) -> np.ndarray:

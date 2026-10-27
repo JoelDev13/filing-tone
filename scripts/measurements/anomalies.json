@@ -3,16 +3,17 @@
     {
       "year": 2026,
       "z": 1.71,
-      "drift": 0.36
+      "drift": 0.36,
+      "worst_snippet": ""
     }
   ],
-  "MSFT": [],
-  "GOOGL": [],
-  "META": [],
-  "TSLA": [],
-  "NVDA": [],
-  "JPM": [],
   "AMZN": [],
-  "XOM": [],
-  "WMT": []
+  "GOOGL": [],
+  "JPM": [],
+  "META": [],
+  "MSFT": [],
+  "NVDA": [],
+  "TSLA": [],
+  "WMT": [],
+  "XOM": []
 }
