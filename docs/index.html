@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FTNE &lt;GO&gt; | SEC 8K Quantitative Tone &amp; Drift Terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+:root {
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --panel: #111111;
+  --border: #222222;
+  --border-highlight: #333333;
+  --amber: #ff9900;
+  --amber-dim: #b36b00;
+  --cyan: #00e5ff;
+  --green: #00ff66;
+  --red: #ff3333;
+  --yellow: #ffff00;
+  --magenta: #ff66cc;
+  --text: #e0e0e0;
+  --text-muted: #737373;
+  --text-dim: #444444;
+  --mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: 0 !important; 
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 10px 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.terminal-wrapper {
+  max-width: 1480px;
+  margin: 0 auto;
+}
+
+/* Command Masthead */
+.masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom: 2px solid var(--amber);
+  padding: 6px 12px;
+  margin-bottom: 6px;
+}
+
+.masthead-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cmd-tag {
+  background-color: var(--amber);
+  color: #000000;
+  font-weight: 700;
+  padding: 2px 6px;
+  letter-spacing: 0.5px;
+}
+
+.cmd-title {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+}
+
+.masthead-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.status-live {
+  color: var(--green);
+  font-weight: 700;
+}
+
+/* Terminal Quick Action Toolbar */
+.fkey-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  background-color: var(--panel);
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  margin-bottom: 6px;
+}
+
+.fkey-btn {
+  background-color: var(--surface);
+  border: 1px solid var(--border-highlight);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.fkey-btn:hover {
+  background-color: #1a1a1a;
+  border-color: var(--amber);
+  color: #ffffff;
+}
+
+.fkey-btn.active {
+  background-color: var(--amber);
+  color: #000000;
+  font-weight: 700;
+  border-color: var(--amber);
+}
+
+.fkey-tag {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.fkey-btn.active .fkey-tag {
+  color: #000000;
+}
+
+/* Real Time Ticker Ribbon */
+.ticker-tape {
+  display: flex;
+  flex-wrap: wrap;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  padding: 5px 10px;
+  gap: 14px;
+  margin-bottom: 8px;
+  font-size: 10.5px;
+}
+
+.tape-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.tape-item:hover {
+  background-color: #161616;
+}
+
+.tape-ticker {
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+.tape-val {
+  color: #ffffff;
+}
+
+.tape-val.alert {
+  color: var(--red);
+  font-weight: 700;
+  background-color: rgba(255, 51, 51, 0.12);
+  padding: 0 4px;
+  border: 1px solid rgba(255, 51, 51, 0.3);
+}
+
+.tape-val.ok {
+  color: #888888;
+}
+
+/* Analytical Metric Matrix (6 cells) */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
+  background-color: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.metric-cell {
+  background-color: var(--surface);
+  padding: 8px 10px;
+}
+
+.metric-label {
+  color: var(--text-muted);
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.metric-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-sub {
+  color: var(--text-muted);
+  font-size: 9px;
+  margin-top: 2px;
+}
+
+/* Main Chart Window */
+.chart-panel {
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  margin-bottom: 8px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 5px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--amber);
+  text-transform: uppercase;
+}
+
+.panel-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-view-toggle {
+  display: flex;
+  gap: 2px;
+}
+
+.view-btn {
+  background-color: var(--surface);
+  border: 1px solid var(--border-highlight);
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.view-btn.active {
+  background-color: var(--border-highlight);
+  color: #ffffff;
+  border-color: var(--amber);
+}
+
+.chart-canvas {
+  padding: 4px;
+  background-color: #000000;
+}
+
+#plotly-chart {
+  width: 100%;
+  min-height: 480px;
+}
+
+/* Tables and Data Grids */
+.data-panel {
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  margin-bottom: 8px;
+}
+
+.table-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 4px 10px;
+  font-size: 9.5px;
+}
+
+.table-search {
+  background-color: #000000;
+  border: 1px solid var(--border-highlight);
+  color: #ffffff;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 3px 8px;
+  width: 240px;
+}
+
+.table-search:focus {
+  outline: none;
+  border-color: var(--amber);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  max-height: 380px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+  text-align: left;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  background-color: #141414;
+  color: var(--amber);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  z-index: 2;
+}
+
+thead th.num-col, tbody td.num-col {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+tbody td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #181818;
+  vertical-align: middle;
+  color: #cccccc;
+  white-space: nowrap;
+}
+
+tbody tr:hover td {
+  background-color: #161616;
+  color: #ffffff;
+}
+
+.ticker-code {
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+.tag-breach {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.tag-nominal {
+  color: var(--text-muted);
+}
+
+.tag-expanding {
+  color: var(--yellow);
+}
+
+.cell-snippet {
+  max-width: 460px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #888888;
+  font-style: italic;
+}
+
+/* Modal / Drawer for Full Text Excerpt Inspection */
+#snippet-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.modal-box {
+  background-color: var(--surface);
+  border: 1px solid var(--amber);
+  width: 100%;
+  max-width: 800px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+}
+
+.modal-header {
+  background-color: var(--panel);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.modal-close {
+  background: none;
+  border: 1px solid var(--border-highlight);
+  color: var(--text);
+  font-family: var(--mono);
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  background-color: var(--red);
+  color: #ffffff;
+}
+
+.modal-body {
+  padding: 14px;
+  max-height: 480px;
+  overflow-y: auto;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #e0e0e0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Methodology and Mathematical Specification Panel */
+.spec-panel {
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.spec-header {
+  color: var(--amber);
+  font-weight: 700;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.spec-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.spec-col h4 {
+  color: #ffffff;
+  font-size: 10.5px;
+  margin-bottom: 4px;
+}
+
+.formula-box {
+  background-color: #000000;
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  color: var(--cyan);
+  margin: 4px 0;
+  font-family: var(--mono);
+}
+
+/* Institutional Footer */
+footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+footer a {
+  color: var(--amber);
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 1024px) {
+  .metric-grid { grid-template-columns: repeat(3, 1fr); }
+  .spec-grid { grid-template-columns: 1fr; }
+}
+
+  </style>
+</head>
+<body>
+  <div class="terminal-wrapper">
+    <!-- Command Masthead -->
+    <header class="masthead">
+      <div class="masthead-left">
+        <span class="cmd-tag">FTNE &lt;GO&gt;</span>
+        <span class="cmd-title">SEC 8K QUANTITATIVE DISCLOSURE SURVEILLANCE &amp; TAIL RISK TERMINAL</span>
+      </div>
+      <div class="masthead-right">
+        <span class="status-live">FEED ACTIVE [T+0]</span>
+        <span>DESK: <code>ALPHA &amp; RISK RESEARCH</code></span>
+        <span>ENGINE: <code>FinBERT 768D / SBERT 384D</code></span>
+        <span>SYNC: <code>2026-10-28 15:39:35 UTC</code></span>
+      </div>
+    </header>
+
+    <!-- Function Key Toolbar -->
+    <div class="fkey-toolbar">
+      <button class="fkey-btn active" id="btn-f1" onclick="switchChartView('zscore')">
+        <span class="fkey-tag">&lt;F1&gt;</span> Z SCORE TRAJECTORY
+      </button>
+      <button class="fkey-btn" id="btn-f2" onclick="switchChartView('tone')">
+        <span class="fkey-tag">&lt;F2&gt;</span> RAW FINBERT TONE
+      </button>
+      <button class="fkey-btn" id="btn-f3" onclick="switchChartView('dispersion')">
+        <span class="fkey-tag">&lt;F3&gt;</span> 2D RISK DISPERSION
+      </button>
+      <button class="fkey-btn" id="btn-f4" onclick="scrollToElement('section-universe')">
+        <span class="fkey-tag">&lt;F4&gt;</span> UNIVERSE PARAMETERS
+      </button>
+      <button class="fkey-btn" id="btn-f5" onclick="exportLedgerCsv()">
+        <span class="fkey-tag">&lt;F5&gt;</span> EXPORT AUDIT (.CSV)
+      </button>
+      <button class="fkey-btn" id="btn-f6" onclick="resetTickerFilters()">
+        <span class="fkey-tag">&lt;F6&gt;</span> RESET ALL FILTERS
+      </button>
+    </div>
+
+    <!-- Live Ticker Ribbon -->
+    <div class="ticker-tape">
+      <div class='tape-item' onclick="isolateTicker('AAPL')" title='Click to isolate AAPL'><span class='tape-ticker'>AAPL</span><span class='tape-val alert'>+1.71&sigma; &Delta;0.360 [BREACH]</span></div><div class='tape-item' onclick="isolateTicker('AMZN')" title='Click to isolate AMZN'><span class='tape-ticker'>AMZN</span><span class='tape-val ok'>+0.14&sigma; &Delta;0.002 [NOMINAL]</span></div><div class='tape-item' onclick="isolateTicker('GOOGL')" title='Click to isolate GOOGL'><span class='tape-ticker'>GOOGL</span><span class='tape-val ok'>+1.36&sigma; &Delta;0.003 [NOMINAL]</span></div><div class='tape-item' onclick="isolateTicker('JPM')" title='Click to isolate JPM'><span class='tape-ticker'>JPM</span><span class='tape-val ok'>+0.00&sigma; &Delta;-- [NOMINAL]</span></div><div class='tape-item' onclick="isolateTicker('META')" title='Click to isolate META'><span class='tape-ticker'>META</span><span class='tape-val ok'>+1.00&sigma; &Delta;0.003 [NOMINAL]</span></div><div class='tape-item' onclick="isolateTicker('MSFT')" title='Click to isolate MSFT'><span class='tape-ticker'>MSFT</span><span class='tape-val ok'>-0.29&sigma; &Delta;0.003 [NOMINAL]</span></div><div class='tape-item' onclick="isolateTicker('NVDA')" title='Click to isolate NVDA'><span class='tape-ticker'>NVDA</span><span class='tape-val ok'>-1.40&sigma; &Delta;0.003 [NOMINAL]</span></div><div class='tape-item' onclick="isolateTicker('TSLA')" title='Click to isolate TSLA'><span class='tape-ticker'>TSLA</span><span class='tape-val ok'>+0.86&sigma; &Delta;0.008 [NOMINAL]</span></div><div class='tape-item' onclick="isolateTicker('WMT')" title='Click to isolate WMT'><span class='tape-ticker'>WMT</span><span class='tape-val ok'>+0.96&sigma; &Delta;0.004 [NOMINAL]</span></div><div class='tape-item' onclick="isolateTicker('XOM')" title='Click to isolate XOM'><span class='tape-ticker'>XOM</span><span class='tape-val ok'>+1.04&sigma; &Delta;0.004 [NOMINAL]</span></div>
+    </div>
+
+    <!-- Analytical Metric Matrix -->
+    <div class="metric-grid">
+      <div class="metric-cell">
+        <div class="metric-label">Surveillance Universe</div>
+        <div class="metric-val">10 EQUITIES</div>
+        <div class="metric-sub">S&amp;P 500 Mega Cap Mandate</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-label">Active Exceedances</div>
+        <div class="metric-val" style="color: #ff3333;">1 BREACH</div>
+        <div class="metric-sub">|z| &ge; 1.50&sigma; or Drift &ge; 0.50</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-label">Statistical Boundary</div>
+        <div class="metric-val">&plusmn;1.500&sigma;</div>
+        <div class="metric-sub">93.3% Two Tailed Normal Corridor</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-label">Semantic Drift Barrier</div>
+        <div class="metric-val">0.500 &Delta;cos</div>
+        <div class="metric-sub">Embedding Space ℝ<sup>384</sup> (SBERT)</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-label">Data Ingestion Pipe</div>
+        <div class="metric-val">SEC EDGAR T+0</div>
+        <div class="metric-sub">Unscheduled Form 8K Exhibits</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-label">Portfolio Regime</div>
+        <div class="metric-val" style="color: #ff3333;">IDIOSYNCRATIC BREACH</div>
+        <div class="metric-sub">Single Issuer Asymmetric Skew</div>
+      </div>
+    </div>
+
+    <!-- Quantitative Chart Panel -->
+    <div class="chart-panel">
+      <div class="panel-header">
+        <span id="chart-title">Longitudinal Tone Deviation Corridor: Standardized Z Score by Period</span>
+        <div class="panel-controls">
+          <div class="chart-view-toggle">
+            <button class="view-btn active" id="vbtn-zscore" onclick="switchChartView('zscore')">Z SCORE</button>
+            <button class="view-btn" id="vbtn-tone" onclick="switchChartView('tone')">RAW TONE</button>
+            <button class="view-btn" id="vbtn-dispersion" onclick="switchChartView('dispersion')">2D SCATTER</button>
+          </div>
+          <span style="color: var(--text-muted); font-size: 9px;">[Click legend item to isolate]</span>
+        </div>
+      </div>
+      <div class="chart-canvas">
+        <div id="plotly-chart"></div>
+      </div>
+    </div>
+
+    <!-- Critical Exceedances Register Table -->
+    <div class="data-panel" id="section-exceedances">
+      <div class="table-tools">
+        <span style="color: var(--amber); font-weight: 700;">CRITICAL EXCEEDANCES REGISTER | MATERIAL FORM 8K DISCLOSURE ANOMALIES</span>
+        <div>
+          <input type="text" id="filter-exceedances" class="table-search" placeholder="FILTER BY TICKER / PERIOD..." onkeyup="filterTable('table-exceedances', this.value)">
+        </div>
+      </div>
+      <div class="table-wrapper">
+        
+        <table id="table-exceedances">
+          <thead>
+            <tr>
+              <th>TICKER</th>
+              <th>ISSUER NAME</th>
+              <th class="num-col">PERIOD</th>
+              <th class="num-col">RAW TONE</th>
+              <th class="num-col">Z SCORE</th>
+              <th class="num-col">SBERT DRIFT</th>
+              <th class="num-col">EQUITY 1D</th>
+              <th>REGIME STATUS</th>
+              <th>SEC 8K DISCLOSURE EXCERPT (CLICK TO EXPAND)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class='ticker-code'>AAPL</span></td><td>Apple Inc.</td><td class='num-col'>2026</td><td class='num-col'>+0.000</td><td class='num-col'><span class='tag-breach'>+1.71&sigma;</span></td><td class='num-col'>0.360</td><td class='num-col'>N/A</td><td><span class='tag-breach'>[CRITICAL_EXCEEDANCE]</span></td><td class='cell-snippet' onclick="openModal('AAPL', '2026', 'Form 8K disclosure analysis complete (Item 8.01 Other Events). No negative phrase exceeded polarity threshold')" title='Click to inspect full disclosure excerpt' style='cursor: pointer;'>"Form 8K disclosure analysis complete (Item 8.01 Other Events)"</td></tr>
+          </tbody>
+        </table>
+        
+      </div>
+    </div>
+
+    <!-- Complete Universe Surveillance Matrix Table -->
+    <div class="data-panel" id="section-universe">
+      <div class="table-tools">
+        <span style="color: var(--amber); font-weight: 700;">CROSS SECTIONAL UNIVERSE HEALTH &amp; PARAMETER AUDIT | ALL 10 COVERED SECURITIES</span>
+        <div>
+          <input type="text" id="filter-universe" class="table-search" placeholder="FILTER UNIVERSE..." onkeyup="filterTable('table-universe', this.value)">
+        </div>
+      </div>
+      <div class="table-wrapper">
+        
+        <table id="table-universe">
+          <thead>
+            <tr>
+              <th>TICKER</th>
+              <th>ISSUER NAME</th>
+              <th class="num-col">SAMPLES (N)</th>
+              <th class="num-col">LONGITUDINAL &mu;</th>
+              <th class="num-col">VOLATILITY &sigma;</th>
+              <th class="num-col">LATEST YR</th>
+              <th class="num-col">LATEST TONE</th>
+              <th class="num-col">LATEST Z</th>
+              <th class="num-col">SBERT DRIFT</th>
+              <th>MONITORING REGIME</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class='ticker-code'>AAPL</span></td><td>Apple Inc.</td><td class='num-col'>4</td><td class='num-col'>-0.265</td><td class='num-col'>0.154</td><td class='num-col'>2026</td><td class='num-col'>+0.000</td><td class='num-col'>+1.71&sigma;</td><td class='num-col'>0.360</td><td><span class='tag-breach'>[BREACH / EXCEEDANCE]</span></td></tr><tr><td><span class='ticker-code'>AMZN</span></td><td>Amazon.com Inc.</td><td class='num-col'>3</td><td class='num-col'>-0.206</td><td class='num-col'>0.005</td><td class='num-col'>2026</td><td class='num-col'>-0.205</td><td class='num-col'>+0.14&sigma;</td><td class='num-col'>0.002</td><td><span class='tag-nominal'>[MONITORED_NOMINAL]</span></td></tr><tr><td><span class='ticker-code'>GOOGL</span></td><td>Alphabet Inc.</td><td class='num-col'>3</td><td class='num-col'>-0.209</td><td class='num-col'>0.040</td><td class='num-col'>2026</td><td class='num-col'>-0.155</td><td class='num-col'>+1.36&sigma;</td><td class='num-col'>0.003</td><td><span class='tag-nominal'>[MONITORED_NOMINAL]</span></td></tr><tr><td><span class='ticker-code'>JPM</span></td><td>JPMorgan Chase &amp; Co.</td><td class='num-col'>1</td><td class='num-col'>-0.120</td><td class='num-col'>0.000</td><td class='num-col'>2026</td><td class='num-col'>-0.120</td><td class='num-col'>+0.00&sigma;</td><td class='num-col'>N/A</td><td><span class='tag-expanding'>[EXPANDING_BASELINE]</span></td></tr><tr><td><span class='ticker-code'>META</span></td><td>Meta Platforms Inc.</td><td class='num-col'>2</td><td class='num-col'>-0.308</td><td class='num-col'>0.004</td><td class='num-col'>2026</td><td class='num-col'>-0.304</td><td class='num-col'>+1.00&sigma;</td><td class='num-col'>0.003</td><td><span class='tag-expanding'>[EXPANDING_BASELINE]</span></td></tr><tr><td><span class='ticker-code'>MSFT</span></td><td>Microsoft Corp.</td><td class='num-col'>3</td><td class='num-col'>-0.151</td><td class='num-col'>0.026</td><td class='num-col'>2026</td><td class='num-col'>-0.159</td><td class='num-col'>-0.29&sigma;</td><td class='num-col'>0.003</td><td><span class='tag-nominal'>[MONITORED_NOMINAL]</span></td></tr><tr><td><span class='ticker-code'>NVDA</span></td><td>NVIDIA Corp.</td><td class='num-col'>3</td><td class='num-col'>-0.308</td><td class='num-col'>0.029</td><td class='num-col'>2026</td><td class='num-col'>-0.348</td><td class='num-col'>-1.40&sigma;</td><td class='num-col'>0.003</td><td><span class='tag-nominal'>[MONITORED_NOMINAL]</span></td></tr><tr><td><span class='ticker-code'>TSLA</span></td><td>Tesla Inc.</td><td class='num-col'>3</td><td class='num-col'>-0.173</td><td class='num-col'>0.016</td><td class='num-col'>2026</td><td class='num-col'>-0.159</td><td class='num-col'>+0.86&sigma;</td><td class='num-col'>0.008</td><td><span class='tag-nominal'>[MONITORED_NOMINAL]</span></td></tr><tr><td><span class='ticker-code'>WMT</span></td><td>Walmart Inc.</td><td class='num-col'>3</td><td class='num-col'>-0.159</td><td class='num-col'>0.019</td><td class='num-col'>2026</td><td class='num-col'>-0.141</td><td class='num-col'>+0.96&sigma;</td><td class='num-col'>0.004</td><td><span class='tag-nominal'>[MONITORED_NOMINAL]</span></td></tr><tr><td><span class='ticker-code'>XOM</span></td><td>Exxon Mobil Corp.</td><td class='num-col'>3</td><td class='num-col'>-0.070</td><td class='num-col'>0.022</td><td class='num-col'>2026</td><td class='num-col'>-0.047</td><td class='num-col'>+1.04&sigma;</td><td class='num-col'>0.004</td><td><span class='tag-nominal'>[MONITORED_NOMINAL]</span></td></tr>
+          </tbody>
+        </table>
+        
+      </div>
+    </div>
+
+    <!-- Quantitative Methodology and Specification -->
+    <div class="spec-panel">
+      <div class="spec-header">Mathematical Formulation &amp; Model Architecture</div>
+      <div class="spec-grid">
+        <div class="spec-col">
+          <h4>1. Standardized Polarity Z Score</h4>
+          <div class="formula-box">Z = (Tone - &mu;) / &sigma;</div>
+          <p>Where <code>Tone = (Pos - Neg) / (Pos + Neg + Neu)</code> scored by FinBERT (ProsusAI) across SEC 8K text chunks. Normal baseline &mu; and &sigma; derived across rolling historical filing periods.</p>
+        </div>
+        <div class="spec-col">
+          <h4>2. Latent Semantic Cosine Drift</h4>
+          <div class="formula-box">&Delta; = 1 - cos(e_t, e_{t-1})</div>
+          <p>Computed across dense 384 dimensional sentence embeddings generated by Sentence Transformers (all MiniLM L6 v2) between consecutive regulatory filing periods.</p>
+        </div>
+        <div class="spec-col">
+          <h4>3. Decision Boundary &amp; Tail Risk</h4>
+          <div class="formula-box">Trigger: |Z| &ge; 1.50&sigma; &or; &Delta; &ge; 0.50</div>
+          <p>A standard two tailed Gaussian exceedance threshold at &alpha; = 0.1336 combined with semantic drift detects both subtle executive sentiment pessimism and abrupt thematic disclosure shifts.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Institutional Compliance Footer -->
+    <footer>
+      <span>STRICTLY CONFIDENTIAL | FOR INTERNAL QUANTITATIVE RESEARCH &amp; RISK SURVEILLANCE DESK ONLY | SEC EDGAR REGULATORY FEEDS</span>
+      <span>SOURCE CODE: <a href="https://github.com/JoelDev13/filing-tone" target="_blank" rel="noopener">JoelDev13/filing-tone</a> | PIPELINE ENGINE: PYTHON 3.12 / PLOTLY.JS</span>
+    </footer>
+  </div>
+
+  <!-- Excerpt Modal Drawer -->
+  <div id="snippet-modal" onclick="closeModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <span id="modal-title">SEC 8K DISCLOSURE EXCERPT INSPECTION</span>
+        <button class="modal-close" onclick="closeModal()">[ESC / CLOSE]</button>
+      </div>
+      <div class="modal-body" id="modal-content"></div>
+    </div>
+  </div>
+
+  <script>
+    // Injected Chart Payloads
+    const views = {
+      zscore: {
+        traces: [{"name": "AAPL", "x": [2023, 2024, 2025, 2026], "y": [-0.8, -0.4, -0.51, 1.71], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.388", "-0.265", "0.154"], ["0.003", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.327", "-0.265", "0.154"], ["0.004", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.343", "-0.265", "0.154"], ["0.360", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "+0.000", "-0.265", "0.154"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": [7, 7, 7, 11], "color": ["#00e5ff", "#00e5ff", "#00e5ff", "#ff3333"], "symbol": ["square", "square", "square", "diamond"], "line": {"color": "#000000", "width": 1.5}}, "line": {"color": "#00e5ff", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>TONE Z SCORE    : <b>%{y:+.2f}&sigma;</b><br>RAW FINBERT TONE: <b>%{customdata[3]}</b><br>HISTORICAL MEAN &mu;: %{customdata[4]} | &sigma;: %{customdata[5]}<br>SBERT DRIFT     : <b>%{customdata[0]}</b><br>EQUITY 1D RET   : <b>%{customdata[2]}</b><br>------------------------------------<br>EXCERPT: <i>\"%{customdata[1]}\"</i><extra></extra>"}, {"name": "AMZN", "x": [2024, 2025, 2026], "y": [-1.29, 1.15, 0.14], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.212", "-0.206", "0.005"], ["0.001", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.200", "-0.206", "0.005"], ["0.002", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.205", "-0.206", "0.005"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": [7, 7, 7], "color": ["#ff9900", "#ff9900", "#ff9900"], "symbol": ["square", "square", "square"], "line": {"color": "#000000", "width": 1.5}}, "line": {"color": "#ff9900", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>TONE Z SCORE    : <b>%{y:+.2f}&sigma;</b><br>RAW FINBERT TONE: <b>%{customdata[3]}</b><br>HISTORICAL MEAN &mu;: %{customdata[4]} | &sigma;: %{customdata[5]}<br>SBERT DRIFT     : <b>%{customdata[0]}</b><br>EQUITY 1D RET   : <b>%{customdata[2]}</b><br>------------------------------------<br>EXCERPT: <i>\"%{customdata[1]}\"</i><extra></extra>"}, {"name": "GOOGL", "x": [2024, 2025, 2026], "y": [-0.34, -1.02, 1.36], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.222", "-0.209", "0.040"], ["0.002", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.249", "-0.209", "0.040"], ["0.003", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.155", "-0.209", "0.040"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": [7, 7, 7], "color": ["#00ff66", "#00ff66", "#00ff66"], "symbol": ["square", "square", "square"], "line": {"color": "#000000", "width": 1.5}}, "line": {"color": "#00ff66", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>TONE Z SCORE    : <b>%{y:+.2f}&sigma;</b><br>RAW FINBERT TONE: <b>%{customdata[3]}</b><br>HISTORICAL MEAN &mu;: %{customdata[4]} | &sigma;: %{customdata[5]}<br>SBERT DRIFT     : <b>%{customdata[0]}</b><br>EQUITY 1D RET   : <b>%{customdata[2]}</b><br>------------------------------------<br>EXCERPT: <i>\"%{customdata[1]}\"</i><extra></extra>"}, {"name": "JPM", "x": [2026], "y": [0.0], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.120", "-0.120", "0.000"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": [7], "color": ["#ffff00"], "symbol": ["square"], "line": {"color": "#000000", "width": 1.5}}, "line": {"color": "#ffff00", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>TONE Z SCORE    : <b>%{y:+.2f}&sigma;</b><br>RAW FINBERT TONE: <b>%{customdata[3]}</b><br>HISTORICAL MEAN &mu;: %{customdata[4]} | &sigma;: %{customdata[5]}<br>SBERT DRIFT     : <b>%{customdata[0]}</b><br>EQUITY 1D RET   : <b>%{customdata[2]}</b><br>------------------------------------<br>EXCERPT: <i>\"%{customdata[1]}\"</i><extra></extra>"}, {"name": "META", "x": [2025, 2026], "y": [-1.0, 1.0], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.312", "-0.308", "0.004"], ["0.003", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.304", "-0.308", "0.004"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": [7, 7], "color": ["#ff66cc", "#ff66cc"], "symbol": ["square", "square"], "line": {"color": "#000000", "width": 1.5}}, "line": {"color": "#ff66cc", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>TONE Z SCORE    : <b>%{y:+.2f}&sigma;</b><br>RAW FINBERT TONE: <b>%{customdata[3]}</b><br>HISTORICAL MEAN &mu;: %{customdata[4]} | &sigma;: %{customdata[5]}<br>SBERT DRIFT     : <b>%{customdata[0]}</b><br>EQUITY 1D RET   : <b>%{customdata[2]}</b><br>------------------------------------<br>EXCERPT: <i>\"%{customdata[1]}\"</i><extra></extra>"}, {"name": "MSFT", "x": [2024, 2025, 2026], "y": [1.34, -1.05, -0.29], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.116", "-0.151", "0.026"], ["0.003", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.179", "-0.151", "0.026"], ["0.003", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.159", "-0.151", "0.026"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": [7, 7, 7], "color": ["#3399ff", "#3399ff", "#3399ff"], "symbol": ["square", "square", "square"], "line": {"color": "#000000", "width": 1.5}}, "line": {"color": "#3399ff", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>TONE Z SCORE    : <b>%{y:+.2f}&sigma;</b><br>RAW FINBERT TONE: <b>%{customdata[3]}</b><br>HISTORICAL MEAN &mu;: %{customdata[4]} | &sigma;: %{customdata[5]}<br>SBERT DRIFT     : <b>%{customdata[0]}</b><br>EQUITY 1D RET   : <b>%{customdata[2]}</b><br>------------------------------------<br>EXCERPT: <i>\"%{customdata[1]}\"</i><extra></extra>"}, {"name": "NVDA", "x": [2024, 2025, 2026], "y": [0.87, 0.52, -1.4], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.283", "-0.308", "0.029"], ["0.002", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.293", "-0.308", "0.029"], ["0.003", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.348", "-0.308", "0.029"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": [7, 7, 7], "color": ["#ff3333", "#ff3333", "#ff3333"], "symbol": ["square", "square", "square"], "line": {"color": "#000000", "width": 1.5}}, "line": {"color": "#ff3333", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>TONE Z SCORE    : <b>%{y:+.2f}&sigma;</b><br>RAW FINBERT TONE: <b>%{customdata[3]}</b><br>HISTORICAL MEAN &mu;: %{customdata[4]} | &sigma;: %{customdata[5]}<br>SBERT DRIFT     : <b>%{customdata[0]}</b><br>EQUITY 1D RET   : <b>%{customdata[2]}</b><br>------------------------------------<br>EXCERPT: <i>\"%{customdata[1]}\"</i><extra></extra>"}, {"name": "TSLA", "x": [2024, 2025, 2026], "y": [-1.4, 0.54, 0.86], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.195", "-0.173", "0.016"], ["0.002", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.164", "-0.173", "0.016"], ["0.008", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.159", "-0.173", "0.016"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": [7, 7, 7], "color": ["#cc99ff", "#cc99ff", "#cc99ff"], "symbol": ["square", "square", "square"], "line": {"color": "#000000", "width": 1.5}}, "line": {"color": "#cc99ff", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>TONE Z SCORE    : <b>%{y:+.2f}&sigma;</b><br>RAW FINBERT TONE: <b>%{customdata[3]}</b><br>HISTORICAL MEAN &mu;: %{customdata[4]} | &sigma;: %{customdata[5]}<br>SBERT DRIFT     : <b>%{customdata[0]}</b><br>EQUITY 1D RET   : <b>%{customdata[2]}</b><br>------------------------------------<br>EXCERPT: <i>\"%{customdata[1]}\"</i><extra></extra>"}, {"name": "WMT", "x": [2024, 2025, 2026], "y": [-1.38, 0.42, 0.96], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.185", "-0.159", "0.019"], ["0.003", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.151", "-0.159", "0.019"], ["0.004", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.141", "-0.159", "0.019"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": [7, 7, 7], "color": ["#99ff99", "#99ff99", "#99ff99"], "symbol": ["square", "square", "square"], "line": {"color": "#000000", "width": 1.5}}, "line": {"color": "#99ff99", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>TONE Z SCORE    : <b>%{y:+.2f}&sigma;</b><br>RAW FINBERT TONE: <b>%{customdata[3]}</b><br>HISTORICAL MEAN &mu;: %{customdata[4]} | &sigma;: %{customdata[5]}<br>SBERT DRIFT     : <b>%{customdata[0]}</b><br>EQUITY 1D RET   : <b>%{customdata[2]}</b><br>------------------------------------<br>EXCERPT: <i>\"%{customdata[1]}\"</i><extra></extra>"}, {"name": "XOM", "x": [2024, 2025, 2026], "y": [0.31, -1.35, 1.04], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.063", "-0.070", "0.022"], ["0.002", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.099", "-0.070", "0.022"], ["0.004", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.047", "-0.070", "0.022"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": [7, 7, 7], "color": ["#ffcc00", "#ffcc00", "#ffcc00"], "symbol": ["square", "square", "square"], "line": {"color": "#000000", "width": 1.5}}, "line": {"color": "#ffcc00", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>TONE Z SCORE    : <b>%{y:+.2f}&sigma;</b><br>RAW FINBERT TONE: <b>%{customdata[3]}</b><br>HISTORICAL MEAN &mu;: %{customdata[4]} | &sigma;: %{customdata[5]}<br>SBERT DRIFT     : <b>%{customdata[0]}</b><br>EQUITY 1D RET   : <b>%{customdata[2]}</b><br>------------------------------------<br>EXCERPT: <i>\"%{customdata[1]}\"</i><extra></extra>"}],
+        layout: {"paper_bgcolor": "#000000", "plot_bgcolor": "#000000", "font": {"family": "'IBM Plex Mono', 'Courier New', monospace", "color": "#888888", "size": 10}, "xaxis": {"title": {"text": "REGULATORY FISCAL FILING PERIOD", "font": {"color": "#666666", "size": 10}}, "gridcolor": "#171717", "zerolinecolor": "#262626", "tickfont": {"color": "#737373", "size": 10}, "dtick": 1, "showline": true, "linecolor": "#222222"}, "yaxis": {"title": {"text": "STANDARDIZED TONE DEVIATION [ Z = (x - \u03bc) / \u03c3 ]", "font": {"color": "#666666", "size": 10}}, "gridcolor": "#171717", "zerolinecolor": "#333333", "zerolinewidth": 1.2, "tickfont": {"color": "#737373", "size": 10}, "showline": true, "linecolor": "#222222"}, "legend": {"title": {"text": "<b>MONITORED SECURITIES</b>", "font": {"color": "#ff9900", "size": 9, "family": "'IBM Plex Mono', monospace"}}, "font": {"color": "#cccccc", "size": 9.5, "family": "'IBM Plex Mono', monospace"}, "bgcolor": "#0a0a0a", "bordercolor": "#222222", "borderwidth": 1, "orientation": "v"}, "hovermode": "closest", "autosize": true, "margin": {"l": 55, "r": 25, "t": 20, "b": 40}, "shapes": [{"type": "rect", "xref": "paper", "yref": "y", "x0": 0, "x1": 1, "y0": 1.5, "y1": 3.0, "fillcolor": "rgba(255, 51, 51, 0.08)", "line": {"width": 0}}, {"type": "rect", "xref": "paper", "yref": "y", "x0": 0, "x1": 1, "y0": -3.0, "y1": -1.5, "fillcolor": "rgba(255, 51, 51, 0.08)", "line": {"width": 0}}, {"type": "line", "xref": "paper", "x0": 0, "x1": 1, "y0": 1.5, "y1": 1.5, "line": {"color": "#ff3333", "width": 1.2, "dash": "dash"}}, {"type": "line", "xref": "paper", "x0": 0, "x1": 1, "y0": -1.5, "y1": -1.5, "line": {"color": "#ff3333", "width": 1.2, "dash": "dash"}}, {"type": "line", "xref": "paper", "x0": 0, "x1": 1, "y0": 0, "y1": 0, "line": {"color": "#333333", "width": 1}}], "annotations": [{"xref": "paper", "yref": "y", "x": 0.99, "y": 1.5, "text": "[UPPER TAIL BOUNDARY: +1.50\u03c3]", "showarrow": false, "font": {"size": 9, "color": "#ff3333", "family": "'IBM Plex Mono', monospace"}, "xanchor": "right", "yanchor": "bottom"}, {"xref": "paper", "yref": "y", "x": 0.99, "y": -1.5, "text": "[LOWER TAIL BOUNDARY: -1.50\u03c3]", "showarrow": false, "font": {"size": 9, "color": "#ff3333", "family": "'IBM Plex Mono', monospace"}, "xanchor": "right", "yanchor": "top"}]},
+        title: "Longitudinal Tone Deviation Corridor: Standardized Z Score by Period"
+      },
+      tone: {
+        traces: [{"name": "AAPL", "x": [2023, 2024, 2025, 2026], "y": [-0.388, -0.327, -0.343, 0.0], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.388", "-0.265", "0.154"], ["0.003", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.327", "-0.265", "0.154"], ["0.004", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.343", "-0.265", "0.154"], ["0.360", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "+0.000", "-0.265", "0.154"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": 7, "color": "#00e5ff", "symbol": "square"}, "line": {"color": "#00e5ff", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>RAW FINBERT TONE: <b>%{y:+.3f}</b><br>TONE Z SCORE    : <b>%{customdata[3]}&sigma;</b><br>SBERT DRIFT     : <b>%{customdata[0]}</b><br><extra></extra>"}, {"name": "AMZN", "x": [2024, 2025, 2026], "y": [-0.212, -0.2, -0.205], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.212", "-0.206", "0.005"], ["0.001", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.200", "-0.206", "0.005"], ["0.002", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.205", "-0.206", "0.005"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": 7, "color": "#ff9900", "symbol": "square"}, "line": {"color": "#ff9900", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>RAW FINBERT TONE: <b>%{y:+.3f}</b><br>TONE Z SCORE    : <b>%{customdata[3]}&sigma;</b><br>SBERT DRIFT     : <b>%{customdata[0]}</b><br><extra></extra>"}, {"name": "GOOGL", "x": [2024, 2025, 2026], "y": [-0.222, -0.249, -0.155], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.222", "-0.209", "0.040"], ["0.002", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.249", "-0.209", "0.040"], ["0.003", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.155", "-0.209", "0.040"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": 7, "color": "#00ff66", "symbol": "square"}, "line": {"color": "#00ff66", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>RAW FINBERT TONE: <b>%{y:+.3f}</b><br>TONE Z SCORE    : <b>%{customdata[3]}&sigma;</b><br>SBERT DRIFT     : <b>%{customdata[0]}</b><br><extra></extra>"}, {"name": "JPM", "x": [2026], "y": [-0.12], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.120", "-0.120", "0.000"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": 7, "color": "#ffff00", "symbol": "square"}, "line": {"color": "#ffff00", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>RAW FINBERT TONE: <b>%{y:+.3f}</b><br>TONE Z SCORE    : <b>%{customdata[3]}&sigma;</b><br>SBERT DRIFT     : <b>%{customdata[0]}</b><br><extra></extra>"}, {"name": "META", "x": [2025, 2026], "y": [-0.312, -0.304], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.312", "-0.308", "0.004"], ["0.003", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.304", "-0.308", "0.004"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": 7, "color": "#ff66cc", "symbol": "square"}, "line": {"color": "#ff66cc", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>RAW FINBERT TONE: <b>%{y:+.3f}</b><br>TONE Z SCORE    : <b>%{customdata[3]}&sigma;</b><br>SBERT DRIFT     : <b>%{customdata[0]}</b><br><extra></extra>"}, {"name": "MSFT", "x": [2024, 2025, 2026], "y": [-0.116, -0.179, -0.159], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.116", "-0.151", "0.026"], ["0.003", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.179", "-0.151", "0.026"], ["0.003", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.159", "-0.151", "0.026"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": 7, "color": "#3399ff", "symbol": "square"}, "line": {"color": "#3399ff", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>RAW FINBERT TONE: <b>%{y:+.3f}</b><br>TONE Z SCORE    : <b>%{customdata[3]}&sigma;</b><br>SBERT DRIFT     : <b>%{customdata[0]}</b><br><extra></extra>"}, {"name": "NVDA", "x": [2024, 2025, 2026], "y": [-0.283, -0.293, -0.348], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.283", "-0.308", "0.029"], ["0.002", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.293", "-0.308", "0.029"], ["0.003", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.348", "-0.308", "0.029"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": 7, "color": "#ff3333", "symbol": "square"}, "line": {"color": "#ff3333", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>RAW FINBERT TONE: <b>%{y:+.3f}</b><br>TONE Z SCORE    : <b>%{customdata[3]}&sigma;</b><br>SBERT DRIFT     : <b>%{customdata[0]}</b><br><extra></extra>"}, {"name": "TSLA", "x": [2024, 2025, 2026], "y": [-0.195, -0.164, -0.159], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.195", "-0.173", "0.016"], ["0.002", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.164", "-0.173", "0.016"], ["0.008", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.159", "-0.173", "0.016"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": 7, "color": "#cc99ff", "symbol": "square"}, "line": {"color": "#cc99ff", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>RAW FINBERT TONE: <b>%{y:+.3f}</b><br>TONE Z SCORE    : <b>%{customdata[3]}&sigma;</b><br>SBERT DRIFT     : <b>%{customdata[0]}</b><br><extra></extra>"}, {"name": "WMT", "x": [2024, 2025, 2026], "y": [-0.185, -0.151, -0.141], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.185", "-0.159", "0.019"], ["0.003", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.151", "-0.159", "0.019"], ["0.004", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.141", "-0.159", "0.019"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": 7, "color": "#99ff99", "symbol": "square"}, "line": {"color": "#99ff99", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>RAW FINBERT TONE: <b>%{y:+.3f}</b><br>TONE Z SCORE    : <b>%{customdata[3]}&sigma;</b><br>SBERT DRIFT     : <b>%{customdata[0]}</b><br><extra></extra>"}, {"name": "XOM", "x": [2024, 2025, 2026], "y": [-0.063, -0.099, -0.047], "customdata": [["N/A", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.063", "-0.070", "0.022"], ["0.002", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.099", "-0.070", "0.022"], ["0.004", "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A", "-0.047", "-0.070", "0.022"]], "mode": "lines+markers", "type": "scatter", "marker": {"size": 7, "color": "#ffcc00", "symbol": "square"}, "line": {"color": "#ffcc00", "width": 1.5}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{x}</b><br>------------------------------------<br>RAW FINBERT TONE: <b>%{y:+.3f}</b><br>TONE Z SCORE    : <b>%{customdata[3]}&sigma;</b><br>SBERT DRIFT     : <b>%{customdata[0]}</b><br><extra></extra>"}],
+        layout: {"paper_bgcolor": "#000000", "plot_bgcolor": "#000000", "font": {"family": "'IBM Plex Mono', 'Courier New', monospace", "color": "#888888", "size": 10}, "xaxis": {"title": {"text": "REGULATORY FISCAL FILING PERIOD", "font": {"color": "#666666", "size": 10}}, "gridcolor": "#171717", "zerolinecolor": "#262626", "tickfont": {"color": "#737373", "size": 10}, "dtick": 1, "showline": true, "linecolor": "#222222"}, "yaxis": {"title": {"text": "RAW FINBERT POLARITY SCORE [ (Pos - Neg) / Total ]", "font": {"color": "#666666", "size": 10}}, "gridcolor": "#171717", "zerolinecolor": "#333333", "zerolinewidth": 1.2, "tickfont": {"color": "#737373", "size": 10}, "showline": true, "linecolor": "#222222"}, "legend": {"title": {"text": "<b>MONITORED SECURITIES</b>", "font": {"color": "#ff9900", "size": 9, "family": "'IBM Plex Mono', monospace"}}, "font": {"color": "#cccccc", "size": 9.5, "family": "'IBM Plex Mono', monospace"}, "bgcolor": "#0a0a0a", "bordercolor": "#222222", "borderwidth": 1, "orientation": "v"}, "hovermode": "closest", "autosize": true, "margin": {"l": 55, "r": 25, "t": 20, "b": 40}},
+        title: "Raw FinBERT Polarity Score Trajectory: Absolute Value (Pos - Neg)"
+      },
+      dispersion: {
+        traces: [{"name": "AAPL", "x": [-0.4, -0.51, 1.71], "y": [0.003, 0.004, 0.36], "customdata": [[2024, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"], [2025, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"], [2026, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"]], "mode": "markers+text", "text": ["AAPL '24", "AAPL '25", "AAPL '26"], "textposition": "top right", "textfont": {"family": "'IBM Plex Mono', monospace", "size": 8, "color": "#00e5ff"}, "type": "scatter", "marker": {"size": [8, 8, 12], "color": ["#00e5ff", "#00e5ff", "#ff3333"], "symbol": ["circle", "circle", "diamond"], "line": {"color": "#000000", "width": 1}}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{customdata[0]}</b><br>------------------------------------<br>TONE Z SCORE: <b>%{x:+.2f}&sigma;</b><br>SBERT DRIFT : <b>%{y:.3f} &Delta;cos</b><br>EQUITY RET  : <b>%{customdata[2]}</b><br><extra></extra>"}, {"name": "AMZN", "x": [1.15, 0.14], "y": [0.001, 0.002], "customdata": [[2025, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"], [2026, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"]], "mode": "markers+text", "text": ["AMZN '25", "AMZN '26"], "textposition": "top right", "textfont": {"family": "'IBM Plex Mono', monospace", "size": 8, "color": "#ff9900"}, "type": "scatter", "marker": {"size": [8, 8], "color": ["#ff9900", "#ff9900"], "symbol": ["circle", "circle"], "line": {"color": "#000000", "width": 1}}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{customdata[0]}</b><br>------------------------------------<br>TONE Z SCORE: <b>%{x:+.2f}&sigma;</b><br>SBERT DRIFT : <b>%{y:.3f} &Delta;cos</b><br>EQUITY RET  : <b>%{customdata[2]}</b><br><extra></extra>"}, {"name": "GOOGL", "x": [-1.02, 1.36], "y": [0.002, 0.003], "customdata": [[2025, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"], [2026, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"]], "mode": "markers+text", "text": ["GOOGL '25", "GOOGL '26"], "textposition": "top right", "textfont": {"family": "'IBM Plex Mono', monospace", "size": 8, "color": "#00ff66"}, "type": "scatter", "marker": {"size": [8, 8], "color": ["#00ff66", "#00ff66"], "symbol": ["circle", "circle"], "line": {"color": "#000000", "width": 1}}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{customdata[0]}</b><br>------------------------------------<br>TONE Z SCORE: <b>%{x:+.2f}&sigma;</b><br>SBERT DRIFT : <b>%{y:.3f} &Delta;cos</b><br>EQUITY RET  : <b>%{customdata[2]}</b><br><extra></extra>"}, {"name": "META", "x": [1.0], "y": [0.003], "customdata": [[2026, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"]], "mode": "markers+text", "text": ["META '26"], "textposition": "top right", "textfont": {"family": "'IBM Plex Mono', monospace", "size": 8, "color": "#ff66cc"}, "type": "scatter", "marker": {"size": [8], "color": ["#ff66cc"], "symbol": ["circle"], "line": {"color": "#000000", "width": 1}}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{customdata[0]}</b><br>------------------------------------<br>TONE Z SCORE: <b>%{x:+.2f}&sigma;</b><br>SBERT DRIFT : <b>%{y:.3f} &Delta;cos</b><br>EQUITY RET  : <b>%{customdata[2]}</b><br><extra></extra>"}, {"name": "MSFT", "x": [-1.05, -0.29], "y": [0.003, 0.003], "customdata": [[2025, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"], [2026, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"]], "mode": "markers+text", "text": ["MSFT '25", "MSFT '26"], "textposition": "top right", "textfont": {"family": "'IBM Plex Mono', monospace", "size": 8, "color": "#3399ff"}, "type": "scatter", "marker": {"size": [8, 8], "color": ["#3399ff", "#3399ff"], "symbol": ["circle", "circle"], "line": {"color": "#000000", "width": 1}}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{customdata[0]}</b><br>------------------------------------<br>TONE Z SCORE: <b>%{x:+.2f}&sigma;</b><br>SBERT DRIFT : <b>%{y:.3f} &Delta;cos</b><br>EQUITY RET  : <b>%{customdata[2]}</b><br><extra></extra>"}, {"name": "NVDA", "x": [0.52, -1.4], "y": [0.002, 0.003], "customdata": [[2025, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"], [2026, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"]], "mode": "markers+text", "text": ["NVDA '25", "NVDA '26"], "textposition": "top right", "textfont": {"family": "'IBM Plex Mono', monospace", "size": 8, "color": "#ff3333"}, "type": "scatter", "marker": {"size": [8, 8], "color": ["#ff3333", "#ff3333"], "symbol": ["circle", "circle"], "line": {"color": "#000000", "width": 1}}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{customdata[0]}</b><br>------------------------------------<br>TONE Z SCORE: <b>%{x:+.2f}&sigma;</b><br>SBERT DRIFT : <b>%{y:.3f} &Delta;cos</b><br>EQUITY RET  : <b>%{customdata[2]}</b><br><extra></extra>"}, {"name": "TSLA", "x": [0.54, 0.86], "y": [0.002, 0.008], "customdata": [[2025, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"], [2026, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"]], "mode": "markers+text", "text": ["TSLA '25", "TSLA '26"], "textposition": "top right", "textfont": {"family": "'IBM Plex Mono', monospace", "size": 8, "color": "#cc99ff"}, "type": "scatter", "marker": {"size": [8, 8], "color": ["#cc99ff", "#cc99ff"], "symbol": ["circle", "circle"], "line": {"color": "#000000", "width": 1}}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{customdata[0]}</b><br>------------------------------------<br>TONE Z SCORE: <b>%{x:+.2f}&sigma;</b><br>SBERT DRIFT : <b>%{y:.3f} &Delta;cos</b><br>EQUITY RET  : <b>%{customdata[2]}</b><br><extra></extra>"}, {"name": "WMT", "x": [0.42, 0.96], "y": [0.003, 0.004], "customdata": [[2025, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"], [2026, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"]], "mode": "markers+text", "text": ["WMT '25", "WMT '26"], "textposition": "top right", "textfont": {"family": "'IBM Plex Mono', monospace", "size": 8, "color": "#99ff99"}, "type": "scatter", "marker": {"size": [8, 8], "color": ["#99ff99", "#99ff99"], "symbol": ["circle", "circle"], "line": {"color": "#000000", "width": 1}}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{customdata[0]}</b><br>------------------------------------<br>TONE Z SCORE: <b>%{x:+.2f}&sigma;</b><br>SBERT DRIFT : <b>%{y:.3f} &Delta;cos</b><br>EQUITY RET  : <b>%{customdata[2]}</b><br><extra></extra>"}, {"name": "XOM", "x": [-1.35, 1.04], "y": [0.002, 0.004], "customdata": [[2025, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"], [2026, "Form 8K disclosure analysis complete (Item 8.01 Other Events)", "N/A"]], "mode": "markers+text", "text": ["XOM '25", "XOM '26"], "textposition": "top right", "textfont": {"family": "'IBM Plex Mono', monospace", "size": 8, "color": "#ffcc00"}, "type": "scatter", "marker": {"size": [8, 8], "color": ["#ffcc00", "#ffcc00"], "symbol": ["circle", "circle"], "line": {"color": "#000000", "width": 1}}, "hovertemplate": "<b>[%{fullData.name}]</b> PERIOD: <b>%{customdata[0]}</b><br>------------------------------------<br>TONE Z SCORE: <b>%{x:+.2f}&sigma;</b><br>SBERT DRIFT : <b>%{y:.3f} &Delta;cos</b><br>EQUITY RET  : <b>%{customdata[2]}</b><br><extra></extra>"}],
+        layout: {"paper_bgcolor": "#000000", "plot_bgcolor": "#000000", "font": {"family": "'IBM Plex Mono', 'Courier New', monospace", "color": "#888888", "size": 10}, "xaxis": {"title": {"text": "STANDARDIZED TONE Z SCORE (\u03c3)", "font": {"color": "#666666", "size": 10}}, "gridcolor": "#171717", "zerolinecolor": "#262626", "tickfont": {"color": "#737373", "size": 10}, "dtick": null, "showline": true, "linecolor": "#222222"}, "yaxis": {"title": {"text": "SBERT SEMANTIC DRIFT [ 1 - Cos(\u03b8) ]", "font": {"color": "#666666", "size": 10}}, "gridcolor": "#171717", "zerolinecolor": "#333333", "zerolinewidth": 1.2, "tickfont": {"color": "#737373", "size": 10}, "showline": true, "linecolor": "#222222"}, "legend": {"title": {"text": "<b>MONITORED SECURITIES</b>", "font": {"color": "#ff9900", "size": 9, "family": "'IBM Plex Mono', monospace"}}, "font": {"color": "#cccccc", "size": 9.5, "family": "'IBM Plex Mono', monospace"}, "bgcolor": "#0a0a0a", "bordercolor": "#222222", "borderwidth": 1, "orientation": "v"}, "hovermode": "closest", "autosize": true, "margin": {"l": 55, "r": 25, "t": 20, "b": 40}, "shapes": [{"type": "line", "x0": 1.5, "x1": 1.5, "y0": 0, "y1": 1.0, "line": {"color": "#ff3333", "width": 1, "dash": "dash"}}, {"type": "line", "x0": -1.5, "x1": -1.5, "y0": 0, "y1": 1.0, "line": {"color": "#ff3333", "width": 1, "dash": "dash"}}, {"type": "line", "x0": -3.0, "x1": 3.0, "y0": 0.5, "y1": 0.5, "line": {"color": "#ff3333", "width": 1, "dash": "dash"}}], "annotations": [{"x": 2.2, "y": 0.7, "text": "QUADRANT IV: COMPOUND TAIL RISK", "showarrow": false, "font": {"size": 8.5, "color": "#ff3333"}}, {"x": 0.0, "y": 0.1, "text": "QUADRANT I: NOMINAL REGIME", "showarrow": false, "font": {"size": 8.5, "color": "#555555"}}, {"x": 0.0, "y": 0.7, "text": "QUADRANT II: THEMATIC DRIFT SHIFT", "showarrow": false, "font": {"size": 8.5, "color": "#ffff00"}}]},
+        title: "2D Quantitative Risk Dispersion: SBERT Semantic Drift vs Tone Z Score"
+      }
+    };
+
+    let currentView = 'zscore';
+    const plotConfig = {
+      responsive: true,
+      displayModeBar: true,
+      displaylogo: false,
+      modeBarButtonsToRemove: ['lasso2d', 'select2d']
+    };
+
+    function renderCurrentView() {
+      const v = views[currentView];
+      document.getElementById('chart-title').innerHTML = v.title;
+      Plotly.react('plotly-chart', v.traces, v.layout, plotConfig);
+    }
+
+    function switchChartView(viewKey) {
+      if (!views[viewKey]) return;
+      currentView = viewKey;
+
+      ['zscore', 'tone', 'dispersion'].forEach(k => {
+        const btn = document.getElementById('vbtn-' + k);
+        const fbtn = document.getElementById('btn-f' + (k === 'zscore' ? '1' : k === 'tone' ? '2' : '3'));
+        if (btn) btn.classList.toggle('active', k === viewKey);
+        if (fbtn) fbtn.classList.toggle('active', k === viewKey);
+      });
+
+      renderCurrentView();
+    }
+
+    function isolateTicker(ticker) {
+      const v = views[currentView];
+      const update = {
+        visible: v.traces.map(t => (t.name === ticker ? true : 'legendonly'))
+      };
+      Plotly.restyle('plotly-chart', update);
+    }
+
+    function resetTickerFilters() {
+      const v = views[currentView];
+      const update = {
+        visible: v.traces.map(() => true)
+      };
+      Plotly.restyle('plotly-chart', update);
+    }
+
+    function filterTable(tableId, query) {
+      const q = query.toLowerCase();
+      const rows = document.querySelectorAll('#' + tableId + ' tbody tr');
+      rows.forEach(r => {
+        r.style.display = r.innerText.toLowerCase().includes(q) ? '' : 'none';
+      });
+    }
+
+    function openModal(ticker, period, text) {
+      document.getElementById('modal-title').innerText = `SEC 8K DISCLOSURE EXCERPT: ${ticker} [${period}]`;
+      document.getElementById('modal-content').innerText = text;
+      document.getElementById('snippet-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('snippet-modal').style.display = 'none';
+    }
+
+    function scrollToElement(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function exportLedgerCsv() {
+      const rows = [];
+      document.querySelectorAll('#table-exceedances tr').forEach(r => {
+        const cols = Array.from(r.querySelectorAll('th, td')).map(c => `"${c.innerText.replace(/"/g, '""')}"`);
+        rows.push(cols.join(','));
+      });
+      const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `FTNE_SEC8K_EXCEEDANCES_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'F1') { e.preventDefault(); switchChartView('zscore'); }
+      if (e.key === 'F2') { e.preventDefault(); switchChartView('tone'); }
+      if (e.key === 'F3') { e.preventDefault(); switchChartView('dispersion'); }
+      if (e.key === 'F5') { e.preventDefault(); exportLedgerCsv(); }
+    });
+
+    // Initialize Plotly
+    renderCurrentView();
+
+    window.addEventListener('resize', () => {
+      Plotly.Plots.resize('plotly-chart');
+    });
+  </script>
+</body>
+</html>
