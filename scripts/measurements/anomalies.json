@@ -7,13 +7,13 @@
       "worst_snippet": ""
     }
   ],
-  "AMZN": [],
-  "GOOGL": [],
-  "JPM": [],
-  "META": [],
   "MSFT": [],
-  "NVDA": [],
+  "GOOGL": [],
+  "META": [],
   "TSLA": [],
-  "WMT": [],
-  "XOM": []
+  "NVDA": [],
+  "JPM": [],
+  "AMZN": [],
+  "XOM": [],
+  "WMT": []
 }
