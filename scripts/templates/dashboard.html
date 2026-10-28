@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FTNE &lt;GO&gt; | SEC 8K Quantitative Tone &amp; Drift Terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+__DASHBOARD_CSS__
+  </style>
+</head>
+<body>
+  <div class="terminal-wrapper">
+    <!-- Command Masthead -->
+    <header class="masthead">
+      <div class="masthead-left">
+        <span class="cmd-tag">FTNE &lt;GO&gt;</span>
+        <span class="cmd-title">SEC 8K QUANTITATIVE DISCLOSURE SURVEILLANCE &amp; TAIL RISK TERMINAL</span>
+      </div>
+      <div class="masthead-right">
+        <span class="status-live">FEED ACTIVE [T+0]</span>
+        <span>DESK: <code>ALPHA &amp; RISK RESEARCH</code></span>
+        <span>ENGINE: <code>FinBERT 768D / SBERT 384D</code></span>
+        <span>SYNC: <code>__TIMESTAMP__</code></span>
+      </div>
+    </header>
+
+    <!-- Function Key Toolbar -->
+    <div class="fkey-toolbar">
+      <button class="fkey-btn active" id="btn-f1" onclick="switchChartView('zscore')">
+        <span class="fkey-tag">&lt;F1&gt;</span> Z SCORE TRAJECTORY
+      </button>
+      <button class="fkey-btn" id="btn-f2" onclick="switchChartView('tone')">
+        <span class="fkey-tag">&lt;F2&gt;</span> RAW FINBERT TONE
+      </button>
+      <button class="fkey-btn" id="btn-f3" onclick="switchChartView('dispersion')">
+        <span class="fkey-tag">&lt;F3&gt;</span> 2D RISK DISPERSION
+      </button>
+      <button class="fkey-btn" id="btn-f4" onclick="scrollToElement('section-universe')">
+        <span class="fkey-tag">&lt;F4&gt;</span> UNIVERSE PARAMETERS
+      </button>
+      <button class="fkey-btn" id="btn-f5" onclick="exportLedgerCsv()">
+        <span class="fkey-tag">&lt;F5&gt;</span> EXPORT AUDIT (.CSV)
+      </button>
+      <button class="fkey-btn" id="btn-f6" onclick="resetTickerFilters()">
+        <span class="fkey-tag">&lt;F6&gt;</span> RESET ALL FILTERS
+      </button>
+    </div>
+
+    <!-- Live Ticker Ribbon -->
+    <div class="ticker-tape">
+      __TICKER_RIBBON__
+    </div>
+
+    <!-- Analytical Metric Matrix -->
+    <div class="metric-grid">
+      <div class="metric-cell">
+        <div class="metric-label">Surveillance Universe</div>
+        <div class="metric-val">__TOTAL_TICKERS__ EQUITIES</div>
+        <div class="metric-sub">S&amp;P 500 Mega Cap Mandate</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-label">Active Exceedances</div>
+        <div class="metric-val" style="color: __ALERT_COLOR__;">__TOTAL_ANOMALIES__ BREACH</div>
+        <div class="metric-sub">|z| &ge; 1.50&sigma; or Drift &ge; 0.50</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-label">Statistical Boundary</div>
+        <div class="metric-val">&plusmn;1.500&sigma;</div>
+        <div class="metric-sub">93.3% Two Tailed Normal Corridor</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-label">Semantic Drift Barrier</div>
+        <div class="metric-val">0.500 &Delta;cos</div>
+        <div class="metric-sub">Embedding Space ℝ<sup>384</sup> (SBERT)</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-label">Data Ingestion Pipe</div>
+        <div class="metric-val">SEC EDGAR T+0</div>
+        <div class="metric-sub">Unscheduled Form 8K Exhibits</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-label">Portfolio Regime</div>
+        <div class="metric-val" style="color: __REGIME_COLOR__;">__REGIME_LABEL__</div>
+        <div class="metric-sub">Single Issuer Asymmetric Skew</div>
+      </div>
+    </div>
+
+    <!-- Quantitative Chart Panel -->
+    <div class="chart-panel">
+      <div class="panel-header">
+        <span id="chart-title">Longitudinal Tone Deviation Corridor: Standardized Z Score by Period</span>
+        <div class="panel-controls">
+          <div class="chart-view-toggle">
+            <button class="view-btn active" id="vbtn-zscore" onclick="switchChartView('zscore')">Z SCORE</button>
+            <button class="view-btn" id="vbtn-tone" onclick="switchChartView('tone')">RAW TONE</button>
+            <button class="view-btn" id="vbtn-dispersion" onclick="switchChartView('dispersion')">2D SCATTER</button>
+          </div>
+          <span style="color: var(--text-muted); font-size: 9px;">[Click legend item to isolate]</span>
+        </div>
+      </div>
+      <div class="chart-canvas">
+        <div id="plotly-chart"></div>
+      </div>
+    </div>
+
+    <!-- Critical Exceedances Register Table -->
+    <div class="data-panel" id="section-exceedances">
+      <div class="table-tools">
+        <span style="color: var(--amber); font-weight: 700;">CRITICAL EXCEEDANCES REGISTER | MATERIAL FORM 8K DISCLOSURE ANOMALIES</span>
+        <div>
+          <input type="text" id="filter-exceedances" class="table-search" placeholder="FILTER BY TICKER / PERIOD..." onkeyup="filterTable('table-exceedances', this.value)">
+        </div>
+      </div>
+      <div class="table-wrapper">
+        __EXCEEDANCES_TABLE__
+      </div>
+    </div>
+
+    <!-- Complete Universe Surveillance Matrix Table -->
+    <div class="data-panel" id="section-universe">
+      <div class="table-tools">
+        <span style="color: var(--amber); font-weight: 700;">CROSS SECTIONAL UNIVERSE HEALTH &amp; PARAMETER AUDIT | ALL 10 COVERED SECURITIES</span>
+        <div>
+          <input type="text" id="filter-universe" class="table-search" placeholder="FILTER UNIVERSE..." onkeyup="filterTable('table-universe', this.value)">
+        </div>
+      </div>
+      <div class="table-wrapper">
+        __UNIVERSE_TABLE__
+      </div>
+    </div>
+
+    <!-- Quantitative Methodology and Specification -->
+    <div class="spec-panel">
+      <div class="spec-header">Mathematical Formulation &amp; Model Architecture</div>
+      <div class="spec-grid">
+        <div class="spec-col">
+          <h4>1. Standardized Polarity Z Score</h4>
+          <div class="formula-box">Z = (Tone - &mu;) / &sigma;</div>
+          <p>Where <code>Tone = (Pos - Neg) / (Pos + Neg + Neu)</code> scored by FinBERT (ProsusAI) across SEC 8K text chunks. Normal baseline &mu; and &sigma; derived across rolling historical filing periods.</p>
+        </div>
+        <div class="spec-col">
+          <h4>2. Latent Semantic Cosine Drift</h4>
+          <div class="formula-box">&Delta; = 1 - cos(e_t, e_{t-1})</div>
+          <p>Computed across dense 384 dimensional sentence embeddings generated by Sentence Transformers (all MiniLM L6 v2) between consecutive regulatory filing periods.</p>
+        </div>
+        <div class="spec-col">
+          <h4>3. Decision Boundary &amp; Tail Risk</h4>
+          <div class="formula-box">Trigger: |Z| &ge; 1.50&sigma; &or; &Delta; &ge; 0.50</div>
+          <p>A standard two tailed Gaussian exceedance threshold at &alpha; = 0.1336 combined with semantic drift detects both subtle executive sentiment pessimism and abrupt thematic disclosure shifts.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Institutional Compliance Footer -->
+    <footer>
+      <span>STRICTLY CONFIDENTIAL | FOR INTERNAL QUANTITATIVE RESEARCH &amp; RISK SURVEILLANCE DESK ONLY | SEC EDGAR REGULATORY FEEDS</span>
+      <span>SOURCE CODE: <a href="https://github.com/JoelDev13/filing-tone" target="_blank" rel="noopener">JoelDev13/filing-tone</a> | PIPELINE ENGINE: PYTHON 3.12 / PLOTLY.JS</span>
+    </footer>
+  </div>
+
+  <!-- Excerpt Modal Drawer -->
+  <div id="snippet-modal" onclick="closeModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <span id="modal-title">SEC 8K DISCLOSURE EXCERPT INSPECTION</span>
+        <button class="modal-close" onclick="closeModal()">[ESC / CLOSE]</button>
+      </div>
+      <div class="modal-body" id="modal-content"></div>
+    </div>
+  </div>
+
+  <script>
+    // Injected Chart Payloads
+    const views = {
+      zscore: {
+        traces: __TRACES_ZSCORE_JSON__,
+        layout: __LAYOUT_ZSCORE_JSON__,
+        title: "Longitudinal Tone Deviation Corridor: Standardized Z Score by Period"
+      },
+      tone: {
+        traces: __TRACES_TONE_JSON__,
+        layout: __LAYOUT_TONE_JSON__,
+        title: "Raw FinBERT Polarity Score Trajectory: Absolute Value (Pos - Neg)"
+      },
+      dispersion: {
+        traces: __TRACES_DISPERSION_JSON__,
+        layout: __LAYOUT_DISPERSION_JSON__,
+        title: "2D Quantitative Risk Dispersion: SBERT Semantic Drift vs Tone Z Score"
+      }
+    };
+
+    let currentView = 'zscore';
+    const plotConfig = {
+      responsive: true,
+      displayModeBar: true,
+      displaylogo: false,
+      modeBarButtonsToRemove: ['lasso2d', 'select2d']
+    };
+
+    function renderCurrentView() {
+      const v = views[currentView];
+      document.getElementById('chart-title').innerHTML = v.title;
+      Plotly.react('plotly-chart', v.traces, v.layout, plotConfig);
+    }
+
+    function switchChartView(viewKey) {
+      if (!views[viewKey]) return;
+      currentView = viewKey;
+
+      ['zscore', 'tone', 'dispersion'].forEach(k => {
+        const btn = document.getElementById('vbtn-' + k);
+        const fbtn = document.getElementById('btn-f' + (k === 'zscore' ? '1' : k === 'tone' ? '2' : '3'));
+        if (btn) btn.classList.toggle('active', k === viewKey);
+        if (fbtn) fbtn.classList.toggle('active', k === viewKey);
+      });
+
+      renderCurrentView();
+    }
+
+    function isolateTicker(ticker) {
+      const v = views[currentView];
+      const update = {
+        visible: v.traces.map(t => (t.name === ticker ? true : 'legendonly'))
+      };
+      Plotly.restyle('plotly-chart', update);
+    }
+
+    function resetTickerFilters() {
+      const v = views[currentView];
+      const update = {
+        visible: v.traces.map(() => true)
+      };
+      Plotly.restyle('plotly-chart', update);
+    }
+
+    function filterTable(tableId, query) {
+      const q = query.toLowerCase();
+      const rows = document.querySelectorAll('#' + tableId + ' tbody tr');
+      rows.forEach(r => {
+        r.style.display = r.innerText.toLowerCase().includes(q) ? '' : 'none';
+      });
+    }
+
+    function openModal(ticker, period, text) {
+      document.getElementById('modal-title').innerText = `SEC 8K DISCLOSURE EXCERPT: ${ticker} [${period}]`;
+      document.getElementById('modal-content').innerText = text;
+      document.getElementById('snippet-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('snippet-modal').style.display = 'none';
+    }
+
+    function scrollToElement(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function exportLedgerCsv() {
+      const rows = [];
+      document.querySelectorAll('#table-exceedances tr').forEach(r => {
+        const cols = Array.from(r.querySelectorAll('th, td')).map(c => `"${c.innerText.replace(/"/g, '""')}"`);
+        rows.push(cols.join(','));
+      });
+      const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `FTNE_SEC8K_EXCEEDANCES_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'F1') { e.preventDefault(); switchChartView('zscore'); }
+      if (e.key === 'F2') { e.preventDefault(); switchChartView('tone'); }
+      if (e.key === 'F3') { e.preventDefault(); switchChartView('dispersion'); }
+      if (e.key === 'F5') { e.preventDefault(); exportLedgerCsv(); }
+    });
+
+    // Initialize Plotly
+    renderCurrentView();
+
+    window.addEventListener('resize', () => {
+      Plotly.Plots.resize('plotly-chart');
+    });
+  </script>
+</body>
+</html>
