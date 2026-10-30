@@ -19,7 +19,9 @@ jobs:
           key: hf-models-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
 
       - uses: actions/setup-python@v5
-        with: { python-version: "3.12" }
+        with:
+          python-version: "3.12"
+          cache: "pip"
       
       - name: Install dependencies
         run: pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
@@ -39,5 +41,5 @@ jobs:
           
           git add scripts/data/scores scripts/measurements scripts/data/state docs
           
-          git diff --cached --quiet || git commit -m "chore(data): auto update 8K tone scores"
+          git diff --cached --quiet || git commit -m "chore(data): auto update 8K tone scores and financial ground truth"
           git push
