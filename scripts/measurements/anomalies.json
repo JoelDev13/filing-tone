@@ -1,4 +1,6 @@
 {
+  "JPM": [],
+  "GOOGL": [],
   "AAPL": [
     {
       "year": 2026,
@@ -8,13 +10,11 @@
       "stock_return_pct": 28.71
     }
   ],
-  "AMZN": [],
-  "GOOGL": [],
-  "JPM": [],
-  "META": [],
-  "MSFT": [],
   "NVDA": [],
-  "TSLA": [],
+  "META": [],
   "WMT": [],
-  "XOM": []
+  "XOM": [],
+  "TSLA": [],
+  "AMZN": [],
+  "MSFT": []
 }
