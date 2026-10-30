@@ -19,10 +19,21 @@ def _save_notified(keys: set):
 def _send_telegram(token: str, chat: str, ticker: str, anomaly: dict):
     """Send a single anomaly alert to Telegram. Non blocking on failure"""
     snippet = (anomaly.get("worst_snippet") or "No context available").replace("*", "").replace("_", "")
+
+    # Ground truth financial return validation for the anomaly period
+    stock_ret = anomaly.get("stock_return_pct")
+    if stock_ret is None:
+        stock_ret_str = "0%"
+    elif isinstance(stock_ret, (int, float)):
+        stock_ret_str = f"{stock_ret:+.2f}%" if stock_ret != 0 else "0%"
+    else:
+        stock_ret_str = f"{stock_ret}%"
+
     text = (
-        "⚠️ *SEC 8-K Tone Anomaly Alert*\n\n"
+        "*SEC 8K Tone Anomaly Alert*\n\n"
         f"*Ticker:* `{ticker}` ({anomaly['year']})\n"
-        f"*Z-Score:* `{anomaly['z']}` | *Drift:* `{anomaly.get('drift', 'N/A')}`\n\n"
+        f"*Z Score:* `{anomaly['z']}` | *Drift:* `{anomaly.get('drift', 'N/A')}`\n"
+        f"*Annual Equity Return:* {stock_ret_str}\n\n"
         f"*Key Negative Excerpt:*\n> _{snippet}_"
     )
     try:

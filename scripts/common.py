@@ -83,9 +83,6 @@ def load_score_history(scores_dir: Path) -> dict:
 EMPTY_SNIPPET_FALLBACK = "Form 8K disclosure analysis complete (Item 8.01 Other Events). No negative phrase exceeded polarity threshold"
 
 def compute_ticker_statistics(history: dict) -> dict:
-    """
-    Compute longitudinal statistics (mean, sample std dev, z-scores) for a single ticker
-    """
     tones = [history[y]["tone"] for y in sorted(history) if "tone" in history[y]]
     n = len(tones)
     mean_val = statistics.mean(tones) if tones else 0.0
