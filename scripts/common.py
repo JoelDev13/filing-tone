@@ -3,24 +3,54 @@ import json
 import statistics
 from pathlib import Path
 
-UA = {"User-Agent": "filing-tone research filingtone.contact@proton.me"}
+UA = {"User-Agent": "filing tone research filingtone.contact@proton.me"}
 
-COMPANIES = {  # Ticker: CIK (10-digit number, zero-padded)
+COMPANIES = {  # Ticker: CIK (10 digit number, zero padded)
+    # Technology and Communication
     "AAPL": "0000320193", "MSFT": "0000789019", "NVDA": "0001045810",
     "TSLA": "0001318605", "AMZN": "0001018724", "GOOGL": "0001652044",
-    "META": "0001326801", "JPM": "0000019617", "XOM": "0000034088",
-    "WMT": "0000104169",
+    "META": "0001326801", "NFLX": "0001065280", "AMD": "0000002488",
+    "AVGO": "0001730168", "CSCO": "0000858877",
+
+    # Financials and Payments
+    "JPM": "0000019617", "BAC": "0000070858", "V": "0001403161",
+    "MA": "0001141391",
+
+    # Healthcare and Pharmaceuticals
+    "LLY": "0000059478", "UNH": "0000731766", "JNJ": "0000200406",
+
+    # Consumer and Retail
+    "WMT": "0000104169", "COST": "0000909832", "HD": "0000354950",
+    "PG": "0000080424", "KO": "0000021344",
+
+    # Energy and Industrials
+    "XOM": "0000034088", "CVX": "0000093410"
 }
 
 COMPANY_NAMES = {
     "AAPL": "Apple Inc.",
     "AMZN": "Amazon.com Inc.",
+    "AMD": "Advanced Micro Devices Inc.",
+    "AVGO": "Broadcom Inc.",
+    "BAC": "Bank of America Corp.",
+    "COST": "Costco Wholesale Corp.",
+    "CSCO": "Cisco Systems Inc.",
+    "CVX": "Chevron Corp.",
     "GOOGL": "Alphabet Inc.",
+    "HD": "The Home Depot Inc.",
+    "JNJ": "Johnson & Johnson",
     "JPM": "JPMorgan Chase & Co.",
+    "KO": "The CocaCola Co.",
+    "LLY": "Eli Lilly and Co.",
+    "MA": "Mastercard Inc.",
     "META": "Meta Platforms Inc.",
     "MSFT": "Microsoft Corp.",
+    "NFLX": "Netflix Inc.",
     "NVDA": "NVIDIA Corp.",
+    "PG": "Procter & Gamble Co.",
     "TSLA": "Tesla Inc.",
+    "UNH": "UnitedHealth Group Inc.",
+    "V": "Visa Inc.",
     "WMT": "Walmart Inc.",
     "XOM": "Exxon Mobil Corp."
 }
@@ -83,6 +113,7 @@ def load_score_history(scores_dir: Path) -> dict:
 EMPTY_SNIPPET_FALLBACK = "Form 8K disclosure analysis complete (Item 8.01 Other Events). No negative phrase exceeded polarity threshold"
 
 def compute_ticker_statistics(history: dict) -> dict:
+    """Compute longitudinal statistics (mean, sample std dev, z scores) for a single ticker"""
     tones = [history[y]["tone"] for y in sorted(history) if "tone" in history[y]]
     n = len(tones)
     mean_val = statistics.mean(tones) if tones else 0.0

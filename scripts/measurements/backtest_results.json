@@ -1,0 +1,18 @@
+{
+  "strategy": "short_selling_z_score_ge_1.5",
+  "total_trades": 1,
+  "win_rate": 0.0,
+  "avg_return": -28.71,
+  "sharpe_ratio": 0.0,
+  "risk_free_rate": 4.0,
+  "trades": [
+    {
+      "ticker": "AAPL",
+      "year": 2026,
+      "z": 1.71,
+      "stock_return_pct": 28.71,
+      "trade_return_pct": -28.71,
+      "is_win": false
+    }
+  ]
+}
