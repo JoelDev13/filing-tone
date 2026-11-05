@@ -2,6 +2,7 @@ from unittest.mock import patch, MagicMock
 from scripts.common import chunk_text, tone_from_labels, is_anomaly
 from scripts.anomalies import get_stock_return, detect
 from scripts.notify import _send_telegram
+from scripts.backtest import run_backtest
 
 def test_tone_from_labels():
     r = tone_from_labels(["positive", "negative", "neutral", "positive"])
@@ -111,3 +112,35 @@ def test_notify_message_format_missing_key():
         _send_telegram("token123", "chat123", "MSFT", anomaly)
         call_json = mock_post.call_args[1]["json"]
         assert "*Annual Equity Return:* 0%" in call_json["text"]
+
+def test_backtest_empty_anomalies():
+    results = run_backtest({})
+    assert results["total_trades"] == 0
+    assert results["win_rate"] == 0.0
+    assert results["avg_return"] == 0.0
+    assert results["sharpe_ratio"] == 0.0
+    assert results["trades"] == []
+
+def test_backtest_filters_z_threshold():
+    # Only z >= 1.50 should qualify for short strategy
+    anomalies = {
+        "AAPL": [{"year": 2024, "z": 1.20, "stock_return_pct": -10.0}],
+        "MSFT": [{"year": 2025, "z": 1.70, "stock_return_pct": -15.0}]
+    }
+    results = run_backtest(anomalies)
+    assert results["total_trades"] == 1
+    assert results["trades"][0]["ticker"] == "MSFT"
+    assert results["win_rate"] == 100.0
+    assert results["avg_return"] == 15.0
+
+def test_backtest_metrics_calculation():
+    anomalies = {
+        "AAPL": [{"year": 2024, "z": 1.80, "stock_return_pct": -10.0}],
+        "MSFT": [{"year": 2025, "z": 1.60, "stock_return_pct": -20.0}],
+        "NVDA": [{"year": 2026, "z": 1.50, "stock_return_pct": 10.0}]
+    }
+    results = run_backtest(anomalies, risk_free_rate=4.0)
+    assert results["total_trades"] == 3
+    assert results["win_rate"] == 66.67
+    assert results["avg_return"] == 6.67
+    assert results["sharpe_ratio"] == 0.17
