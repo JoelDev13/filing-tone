@@ -23,7 +23,7 @@ Statistical outliers are identified via standardized z score thresholds and cosi
 The quantitative pipeline operates across seven deterministic stages:
 
 ### 1. Regulatory Ingestion (`fetch_text.py`)
-Polls the SEC EDGAR Submissions API for monitored mega cap issuers (e.g., AAPL, MSFT, NVDA, TSLA, GOOGL, META, AMZN, JPM, XOM, WMT). Raw disclosures are sanitized by stripping uninformative HTML markup, scripts, and tabular exhibits to isolate narrative executive prose.
+Polls the SEC EDGAR Submissions API for 25 monitored mega cap issuers across technology, financials, healthcare, consumer, and energy sectors (e.g., AAPL, MSFT, NVDA, TSLA, AMZN, JPM, LLY, WMT, XOM). Raw disclosures are sanitized by stripping uninformative HTML markup, scripts, and tabular exhibits to isolate narrative executive prose.
 
 ### 2. Financial Sentiment and Contextual Extraction (`analyze_tone.py`)
 Text is partitioned into sentence chunks $C = \{c_1, c_2, \dots, c_n\}$ and classified via **FinBERT** (`ProsusAI/finbert`). Let $L(c_i) \in \{\text{positive}, \text{negative}, \text{neutral}\}$ denote the assigned polarity. Aggregate tone is computed as:
@@ -110,6 +110,7 @@ filing-tone/
 │   ├── analyze_tone.py      # FinBERT sentiment classification and context extraction
 │   ├── drift.py             # Sentence Transformers semantic drift evaluation
 │   ├── anomalies.py         # Anomaly detection and yfinance market ground truth
+│   ├── backtest.py          # Quantitative backtest engine and alpha evaluation
 │   ├── dashboard.py         # Plotly serializer and dashboard HTML compiler
 │   ├── notify.py            # Telegram alert dispatcher with deduplication
 │   ├── templates/           # Bloomberg UI HTML and CSS templates
