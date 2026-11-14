@@ -1,5 +1,7 @@
 {
   "XOM": [],
+  "JNJ": [],
+  "PG": [],
   "MSFT": [],
   "AAPL": [
     {
@@ -7,14 +9,27 @@
       "z": 1.71,
       "drift": 0.36,
       "worst_snippet": "",
-      "stock_return_pct": 30.95
+      "stock_return_pct": 31.46
     }
   ],
   "GOOGL": [],
+  "KO": [],
   "META": [],
   "TSLA": [],
+  "CVX": [],
   "NVDA": [],
   "WMT": [],
+  "NFLX": [],
+  "CSCO": [],
+  "COST": [],
+  "LLY": [],
+  "MA": [],
   "JPM": [],
-  "AMZN": []
+  "AMZN": [],
+  "AMD": [],
+  "UNH": [],
+  "BAC": [],
+  "AVGO": [],
+  "V": [],
+  "HD": []
 }
