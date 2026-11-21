@@ -1,35 +1,35 @@
 {
-  "XOM": [],
-  "JNJ": [],
-  "PG": [],
-  "MSFT": [],
+  "WMT": [],
+  "BAC": [],
   "AAPL": [
     {
       "year": 2026,
       "z": 1.71,
       "drift": 0.36,
       "worst_snippet": "",
-      "stock_return_pct": 28.86
+      "stock_return_pct": 26.4
     }
   ],
-  "GOOGL": [],
-  "KO": [],
-  "META": [],
-  "TSLA": [],
-  "CVX": [],
+  "MSFT": [],
+  "XOM": [],
   "NVDA": [],
-  "WMT": [],
+  "PG": [],
+  "META": [],
   "NFLX": [],
+  "AMZN": [],
   "CSCO": [],
   "COST": [],
-  "LLY": [],
+  "JNJ": [],
   "MA": [],
-  "JPM": [],
-  "AMZN": [],
-  "AMD": [],
   "UNH": [],
-  "BAC": [],
-  "AVGO": [],
+  "TSLA": [],
+  "HD": [],
+  "GOOGL": [],
+  "AMD": [],
+  "LLY": [],
+  "JPM": [],
+  "CVX": [],
   "V": [],
-  "HD": []
+  "KO": [],
+  "AVGO": []
 }
